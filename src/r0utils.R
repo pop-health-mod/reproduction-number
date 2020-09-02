@@ -84,7 +84,7 @@ balance_dfs <- function(df1, df2) {
 }
 
 # ---- Estimation of R0 ----
-calc_r0 <- function(n_sim, inci_dat, results, window, estimated_offset,
+calc_r0 <- function(inci_dat, results, window, estimated_offset,
                     rt_prior = c(2.6, 2), 
                     si = c(5.2, 1.7), 
                     si_dist = "G",
@@ -95,97 +95,77 @@ calc_r0 <- function(n_sim, inci_dat, results, window, estimated_offset,
   last_date <- max(as.Date(inci_dat$dates)) - estimated_offset
 
   # Preliminary test Using Cori
-  R_curves_cori <- list()
-  for (sim in 1:n_sim) {
-    incid_sim <- results[[sim]]
+  incid_sim <- results
+  incid_sim <- incid_sim[incid_sim$dates >= start_date & incid_sim$dates <= last_date, ]
+  t_start <- seq(2, as.numeric(max(as.Date(incid_sim$dates)) - min(as.Date(incid_sim$dates))) - window + 1)
+  t_end <- t_start + window 
+  
+  # if we want weekly time step instead
+  if (step_rt) {
     incid_sim <- incid_sim[incid_sim$dates >= start_date & incid_sim$dates <= last_date, ]
-    t_start <- seq(2, as.numeric(max(as.Date(incid_sim$dates)) - min(as.Date(incid_sim$dates))) - window + 1)
-    t_end <- t_start + window 
     
-    # if we want weekly time step instead
-    if (step_rt) {
-      incid_sim <- incid_sim[incid_sim$dates >= start_date & incid_sim$dates <= last_date, ]
-      
-      # Cases - we align start date
-      if (any(names(incid_sim) %in% "local")) {
+    # Cases - we align start date
+    if (any(names(incid_sim) %in% "local")) {
       if (min(incid_sim$dates) > start_date) {
-          incid_to_add_first <- data.frame(dates = seq(start_date, as.Date(min(incid_sim$dates) - 1), by = "days"),
-                                     local = 0, imported = 0)
-          } else { incid_to_add_first <- NULL }
+        incid_to_add_first <- data.frame(dates = seq(start_date, as.Date(min(incid_sim$dates) - 1), by = "days"),
+                                         local = 0, imported = 0)
+      } else { incid_to_add_first <- NULL }
       # Cases - we align end date  
       if (max(incid_sim$dates) < last_date) {
-          incid_to_add_last <- data.frame(dates = seq(as.Date(max(incid_sim$dates) + 1), last_date, by = "days"),
-                                     local = 0, imported = 0)
+        incid_to_add_last <- data.frame(dates = seq(as.Date(max(incid_sim$dates) + 1), last_date, by = "days"),
+                                        local = 0, imported = 0)
       } else { incid_to_add_last <- NULL }
       incid_sim <- rbind(incid_to_add_first, incid_sim, incid_to_add_last)
-      }
-      
-      # Hospit + Deaths - we align start date
-      if (!any(names(incid_sim) %in% "local")) {
+    }
+    
+    # Hospit + Deaths - we align start date
+    if (!any(names(incid_sim) %in% "local")) {
       if (min(incid_sim$dates) > start_date) {
-          incid_to_add_first <- data.frame(dates = seq(start_date, as.Date(min(incid_sim$dates) - 1), by = "days"),
-                                     I = 0)
-          } else { incid_to_add_first <- NULL }
+        incid_to_add_first <- data.frame(dates = seq(start_date, as.Date(min(incid_sim$dates) - 1), by = "days"),
+                                         I = 0)
+      } else { incid_to_add_first <- NULL }
       #  Hospit + Deaths  - we align end date  
       if (max(incid_sim$dates) < last_date) {
-          incid_to_add_last <- data.frame(dates = seq(as.Date(max(incid_sim$dates) + 1), last_date, by = "days"),
-                                     I = 0)
+        incid_to_add_last <- data.frame(dates = seq(as.Date(max(incid_sim$dates) + 1), last_date, by = "days"),
+                                        I = 0)
       } else { incid_to_add_last <- NULL }
       incid_sim <- rbind(incid_to_add_first, incid_sim, incid_to_add_last)
-      }
-      
-      t_start <- seq(from = 2, to = as.numeric(max(as.Date(incid_sim$dates)) - min(as.Date(incid_sim$dates))) - 7, by = 7)
-      t_end <- c(t_start[-1] - 1, t_start[length(t_start)] + 6) 
     }
-
-    # Main estimation of the instantaneous reproduction number using Cori.
-    res_i <- estimate_R(incid_sim, method = "parametric_si",
-                       config = make_config(list(
-                         t_start = t_start,
-                         t_end = t_end,
-                         mean_si = si[1],
-                         std_si = si[2],
-                         mean_prior = rt_prior[1],
-                         std_prior = rt_prior[2])))
     
-    # Store mean/median and 95% CI for the given simulation
-    last_estim <- max(start_date + t_end)
-    output_dates <- seq(start_date + 1, last_date, by = 'days')
-    # epiestim plots at the end of the sliding window
-    obs <- data.frame(dates = incid_sim$dates[t_end])
-    obs$R_mean <- res_i$R$`Mean(R)`
-    obs$R_uci <- res_i$R$`Quantile.0.975(R)`
-    obs$R_lci <- res_i$R$`Quantile.0.025(R)`
-    obs$R_std <- res_i$R$`Std(R)`
-    obs <- obs[obs$dates <= last_date, ]
-    obs <- na.omit(obs)
-    obs_na <- data.frame(dates = output_dates, R_mean = NA, R_uci = NA, R_lci = NA, R_std = NA)
-    df_sim <- obs
-    if ((min(output_dates) < min(obs$dates)) | 
-        (max(output_dates) > max(obs$dates))) {
-        sel <- !(output_dates %in% obs$dates)
-        df_sim <- rbind(obs, obs_na[sel, ])
-        df_sim <- df_sim[order(df_sim$dates), ]
-    }
-    if (step_rt) {
-        df_sim <- tidyr::fill(df_sim, R_mean:R_std, .direction = "down")
-    }
-    df_sim$replicate <- sim
-    
-    R_curves_cori <- c(R_curves_cori, list(df_sim))
+    t_start <- seq(from = 2, to = as.numeric(max(as.Date(incid_sim$dates)) - min(as.Date(incid_sim$dates))) - 7, by = 7)
+    t_end <- c(t_start[-1] - 1, t_start[length(t_start)] + 6) 
   }
   
-  df_cori <- bind_rows(R_curves_cori)
+  res_i <- estimate_R(incid_sim, method = "parametric_si",
+                      config = make_config(list(
+                        t_start = t_start,
+                        t_end = t_end,
+                        mean_si = si[1],
+                        std_si = si[2],
+                        mean_prior = rt_prior[1],
+                        std_prior = rt_prior[2])))
   
-  # Plotting median of means
-  df_cori_summ <- df_cori %>%
-    group_by(dates) %>%
-    summarise(median = quantile(R_mean, 0.5, na.rm = T),
-              lci = quantile(R_lci, 0.5, na.rm = T),
-              uci = quantile(R_uci, 0.5, na.rm = T),
-              se = quantile(R_std, 0.5, na.rm = T),
-              method = "Cori (Rt instantané)")
-
+  # Store mean/median and 95% CI for the given simulation
+  last_estim <- max(start_date + t_end)
+  output_dates <- seq(start_date + 1, last_date, by = 'days')
+  # epiestim plots at the end of the sliding window
+  obs <- data.frame(dates = incid_sim$dates[t_end])
+  obs$mean <- res_i$R$`Mean(R)`
+  obs$uci <- res_i$R$`Quantile.0.975(R)`
+  obs$lci <- res_i$R$`Quantile.0.025(R)`
+  obs$se <- res_i$R$`Std(R)`
+  obs <- obs[obs$dates <= last_date, ]
+  obs <- na.omit(obs)
+  obs_na <- data.frame(dates = output_dates, mean = NA, uci = NA, lci = NA, se = NA)
+  df_cori <- obs
+  if ((min(output_dates) < min(obs$dates)) | (max(output_dates) > max(obs$dates))) {
+    sel <- !(output_dates %in% obs$dates)
+    df_cori <- rbind(obs, obs_na[sel, ])
+    df_cori <- df_cori[order(df_cori$dates), ]
+  }
+  if (step_rt) {
+    df_cori <- tidyr::fill(df_cori, mean:se, .direction = "down")
+  }
   
-  return(list(df_cori, df_cori_summ))
+  return(df_cori)
 }

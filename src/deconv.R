@@ -62,17 +62,12 @@ get_constant_waiting_time <- function(shape_incub, scale_incub, shape_event,
     }
   })
   
-  # Returning the mean delay for the given distribution
-  pdf_mean <- ceiling(mean(rgamma(n_samples,
-                            shape = shape_incub,
-                            scale = scale_incub)))
-  
   x <- 0:(length_out - 1)
   
   # Normalizing the pdf and mean of 
   val <- f(x) / sum(f(x))
   
-  return(list(val, pdf_mean))
+  return(val)
 }
 
 # ---- Matrix format of the previously computed vector of waiting time ----
