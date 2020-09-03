@@ -110,7 +110,7 @@ for (i in 1:dim(rss)[1]) {
                                     rgamma(1E6, shape = shape_cas, scale = scale_cas),
                                   probs = 1 / 3)) 
   
-  date_cases  <- max(cas_ts$dates)
+  date_cases  <- date_data_cut - days_exclude$number[days_exclude$variable == "Cas"] - offset_cases - 1
 
   # ---- Cas - Rt estimation with Cori ----
   print("Rt for cases")  
