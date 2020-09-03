@@ -1,8 +1,4 @@
-# Uncertainty from the incubation period
-# By simulating the delay distribution
-
-# ---- Full adjustment function ----
-# ---- Full adjustment function ----
+# ---- Adjustment of the time series ----
 ts_adjustment_deconv_incub <- function(inci_dat, delays, variable, min_chi_squared = 1,
                                        max_iter = 30, max_first_delay = 30, 
                                        smooth_incidence = T, verbose = TRUE,

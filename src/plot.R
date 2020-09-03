@@ -133,15 +133,15 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
       savename <- sprintf("r0_all_%s_%s.png", rss_name, Sys.Date())
       
       # Compute the coefficient of variation to assess whether we include or not
-      cv_c <- df_cv$se / df_cv$median
-      cv_h <- df_hv$se / df_hv$median
-      cv_d <- df_dv$se / df_dv$median
+      cv_c <- df_cv$se / df_cv$mean
+      cv_h <- df_hv$se / df_hv$mean
+      cv_d <- df_dv$se / df_dv$mean
     } else {
       # Name to save the figure
       savename <- sprintf("r0_inspq_%s_%s.png", rss_name, Sys.Date())
       
       # Set coefficient so we only have cases
-      cv_c <- df_cv$se / df_cv$median
+      cv_c <- df_cv$se / df_cv$mean
       cv_h <- 0.3 + 1
       cv_d <- 0.3 + 1
     }
@@ -152,16 +152,16 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
     if (cv_d < 0.3) {
       p <- p + geom_ribbon(data = df_d, aes(x = dates, ymin = lci,
                                             ymax = uci, fill = variable), alpha = 0.4) +
-        geom_line(data = df_d, aes(x = dates, y = median, col = variable), size = 0.75) +
+        geom_line(data = df_d, aes(x = dates, y = mean, col = variable), size = 0.75) +
         annotate("segment", x = max(df_d$dates),
                  xend = max(df_d$dates),
-                 y = df_dv$median,
+                 y = df_dv$mean,
                  yend =  2.25,
                  col = "cornsilk4", lty = 3) +
         annotate("text", x = max(df_d$dates),
                  y = 2.25 + 0.1,
                  label = sprintf("%.2f (%.2f-%.2f)",
-                                 round(df_dv$median, 2),
+                                 round(df_dv$mean, 2),
                                  round(df_dv$lci, 2),
                                  round(df_dv$uci, 2)),
                  col = "cornsilk4", fontface = 2, size = 3.5, hjust = 1) 
@@ -172,13 +172,13 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
                                             ymax = uci, fill = variable), alpha = 0.4) +
         annotate("segment", x = max(df_h$dates),
                  xend = max(df_h$dates),
-                 y = df_hv$median,
+                 y = df_hv$mean,
                  yend = 2.5,
                  col = "cadetblue4", lty = 3) +
         annotate("text", x = max(df_h$dates),
                  y = 2.5 + 0.1,
                  label = sprintf("%.2f (%.2f-%.2f)",
-                                 round(df_hv$median, 2),
+                                 round(df_hv$mean, 2),
                                  round(df_hv$lci, 2),
                                  round(df_hv$uci, 2)),
                  col = "cadetblue4", fontface = 2, size = 3.5, hjust = 1)
@@ -190,25 +190,25 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
       geom_hline(yintercept = 1, col = "darkgrey", lty = 2) +
       annotate("segment", x = max(df_c$dates),
                xend = max(df_c$dates),
-               y = df_cv$median,
+               y = df_cv$mean,
                yend = 2.75,
                col = "firebrick4", lty = 3) +
       annotate("text", x = max(df_c$dates),
                y = 2.75 + 0.1,
                label = sprintf("%.2f (%.2f-%.2f)",
-                               round(df_cv$median, 2),
+                               round(df_cv$mean, 2),
                                round(df_cv$lci, 2),
                                round(df_cv$uci, 2)),
                col = "firebrick4", fontface = 2, size = 3.5, hjust = 1) 
     
     if (cv_h < 0.3) {
-      p <- p + geom_line(data = df_h, aes(x = dates, y = median, col = variable), size = 0.75)
+      p <- p + geom_line(data = df_h, aes(x = dates, y = mean, col = variable), size = 0.75)
     }
     if (cv_d < 0.3) {
-      p <- p + geom_line(data = df_d, aes(x = dates, y = median, col = variable), size = 0.75)
+      p <- p + geom_line(data = df_d, aes(x = dates, y = mean, col = variable), size = 0.75)
     }
     
-    p <- p +  geom_line(data = df_c, aes(x = dates, y = median, col = variable), size = 0.75) +
+    p <- p +  geom_line(data = df_c, aes(x = dates, y = mean, col = variable), size = 0.75) +
       labs(x = "Temps (jours)",
            y = expression('Taux de reproduction effectif (R'[t]*')')) +
       scale_x_date(limits = as.Date(c("2020-03-13", max(df$dates) + 1)),
@@ -255,42 +255,42 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
       theme_minimal(base_family = "Raleway") +
       geom_ribbon(data = df, aes(x = dates, ymin = lci, 
                                  ymax = uci, fill = variable), alpha = 0.4) +
-      geom_line(data = df, aes(x = dates, y = median, col = variable),
+      geom_line(data = df, aes(x = dates, y = mean, col = variable),
                 size = 0.75) +
       geom_hline(yintercept = 1, col = "darkgrey", lty = 2) +
       annotate("segment", x = max(df[df$variable == "Décès",]$dates),
                xend = max(df[df$variable == "Décès",]$dates),
-               y = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$median,
+               y = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$mean,
                yend = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 0.25,
                col = "cornsilk4", lty = 3) +
       annotate("segment", x = max(df[df$variable == "Hospitalisations",]$dates),
                xend = max(df[df$variable == "Hospitalisations",]$dates),
-               y = df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$median,
+               y = df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$mean,
                yend = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 0.5,
                col = "cadetblue4", lty = 3) +
       annotate("segment", x = max(df[df$variable == "Cas",]$dates),
                xend = max(df[df$variable == "Cas",]$dates),
-               y = df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$median,
+               y = df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$mean,
                yend = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 1,
                col = "firebrick4", lty = 3) +
       annotate("text", x = max(df[df$variable == "Décès",]$dates),
                y = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 0.25, 
                label = sprintf("%.2f (%.2f-%.2f)",
-                               round(df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$median, 2),
+                               round(df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$mean, 2),
                                round(df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$lci, 2),
                                round(df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci, 2)),
                col = "cornsilk4", fontface = 2, size = 2.5, hjust = 1) +
       annotate("text", x = max(df[df$variable == "Cas",]$dates),
                y = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 1,
                label = sprintf("%.2f (%.2f-%.2f)",
-                               round(df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$median, 2),
+                               round(df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$mean, 2),
                                round(df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$lci, 2),
                                round(df[df$variable == "Cas" & df$dates == max(df[df$variable == "Cas",]$dates),]$uci, 2)),
                col = "firebrick4", fontface = 2, size = 2.5, hjust = 1) +
       annotate("text", x = max(df[df$variable == "Hospitalisations",]$dates),
                y = df[df$variable == "Décès" & df$dates == max(df[df$variable == "Décès",]$dates),]$uci + 0.5,
                label = sprintf("%.2f (%.2f-%.2f)",
-                               round(df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$median, 2),
+                               round(df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$mean, 2),
                                round(df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$lci, 2),
                                round(df[df$variable == "Hospitalisations" & df$dates == max(df[df$variable == "Hospitalisations",]$dates),]$uci, 2)),
                col = "cadetblue4", fontface = 2, size = 2.5, hjust = 1) +
