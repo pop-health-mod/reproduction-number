@@ -26,12 +26,11 @@ load_df <- function(path_to_data, rss_file, t_start = as.Date("2020-02-28"),
   rss_dat <- get(load(path_to_data))
   # TODO One ifelse statement to remove unecessary data loads.
   rss_dat <- as.data.frame(rss_dat) %>%
-    tibble::rownames_to_column(var = "dates") %>%
     filter(dates >= t_start & dates < t_end)  %>%
-    mutate(overall = nc_lab + nc_travel_impute + nc_epi) %>%
+    mutate(importation = nc_travel_impute + nc_travel_impute_after_quarantine_date_fin_voyage) %>%
+    mutate(overall = nc_lab + importation + nc_epi) %>%
     select(dates, "Cas" = overall, "Épidémiologique" = nc_epi, "Local" = nc_lab,
-           "Importé" = nc_travel_impute, "Hospitalisations" = nh_inspq,
-           "Décès" = dx_INSPQ_autre)
+           "Importé" = importation, "Hospitalisations" = nh_inspq, "Décès" = dx_INSPQ_autre)
   # Coding missing value to 0
   rss_dat[is.na(rss_dat)] <- 0
   # Reshaping to long format
@@ -41,15 +40,15 @@ load_df <- function(path_to_data, rss_file, t_start = as.Date("2020-02-28"),
     rss_long_plot <- rss_dat %>%
       reshape2::melt(id.vars = "dates") %>%
       mutate(imported = ifelse(variable == "Local", 1,
-                               ifelse(variable == "Importé", 2,
-                                      ifelse(variable == "Épidémiologique", 3,
+                               ifelse(variable == "Épidémiologique", 2,
+                                      ifelse(variable == "Importé", 3,
                                              ifelse(variable == "Hospitalisations", 4, 5))))) %>%
       filter(variable != "Cas") %>%
       mutate(variable = ifelse(variable %in% c("Importé", "Local", "Épidémiologique"), "Cas",
                                as.character(variable))) %>%
       mutate(imported = factor(imported, labels = c("Local",
-                                                    "Importé",
                                                     "Épidémiologique",
+                                                    "Importé",
                                                     "Hospitalisations",
                                                     "Décès"))) %>%
       mutate(variable = factor(variable, levels = c("Cas",

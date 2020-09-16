@@ -72,24 +72,16 @@ plot_ts_unadj <- function(inci_dat_long, vars, rss_name, days_exclude,
   }
   p_inci <-  p_inci + 
     theme_minimal(base_family = "Raleway") +
-    geom_bar(aes(x = as.Date(dates), y = value, fill = variable, col = imported),
-             stat = "identity", show.legend = showleg) +
-    geom_bar(data = inci_dat_long %>% filter(imported == "Épidémiologique"),
-             aes(x = as.Date(dates), y = value), stat = "identity",
-             fill = "firebrick1", col="firebrick2", alpha = 0.4) +
-    geom_bar(data = inci_dat_long %>% filter(imported == "Importé"),
-             aes(x = as.Date(dates), y = value), stat = "identity",
-             fill = "royalblue4", alpha = 0.6) +
+    geom_bar(aes(x = as.Date(dates), y = value, fill = imported, col = imported),
+             stat = "identity", show.legend = showleg, size = 0.2, width = 1) +
     geom_rect(data = days_excl,
               aes(xmin = date_low, xmax = date_up, ymin = y_low, ymax = y_up, group = variable),
               fill = "snow3", alpha = 0.6) +
     geom_blank(aes(y = min)) +
     geom_blank(aes(y = max)) +
     scale_x_date(breaks = "2 weeks", date_labels = "%b %d") +
-    scale_fill_manual(name = "Évènement", values = c("firebrick3",
-                                                     "cadetblue3",
-                                                     "cornsilk3")) +
-    scale_color_manual(values = c("firebrick4", "royalblue4", "firebrick4",
+    scale_fill_manual(name = "Évènement", values = c("firebrick3", "firebrick1", "royalblue3")) +
+    scale_color_manual(values = c("firebrick4", "firebrick2", "royalblue4",
                                   "cadetblue4", "cornsilk4"), guide=F) +
     labs(x = "Temps (jours)",
          y = ylab) +

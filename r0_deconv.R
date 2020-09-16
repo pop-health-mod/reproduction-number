@@ -13,12 +13,12 @@ source(here::here("src", "deconv.R"))
 source(here::here("src", "deconv_uncer.R"))
 
 # Declare the path to the repository hosting the data and where to output res.
-pathData <- "~/Desktop/covid19/data/"
+pathData <- "../reproduction-number/output/"
 pathFile <- here::here("output", "out")
 
 # ---- Parameter set-up----
 # Provincial estimates
-rss <- data_frame(filename = c("qc"), name = c("Québec"), RSS_code = c(NA))
+rss <- data_frame(filename = c("qc_noise"), name = c("Québec"), RSS_code = c(NA))
 rss$cases_7days <- NA
 
 # Simulations and sliding window period (days) for continuous Rt estimation
@@ -29,7 +29,7 @@ step_rt <- FALSE
 # Number of days to exclude to remove reporting delays
 days_exclude <- data.frame(variable = c("Cas"),
                            number = c(2))
-date_data_cut <- as.Date("2020-09-01")
+date_data_cut <- as.Date("2020-09-13")
 
 # ---- Around parameters ----
 #  Delays and SD from normal approximation
