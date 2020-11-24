@@ -29,6 +29,16 @@ Estimer le R\_t  de façon précise présente plusieurs défis (5). Premièremen
 
 
 
+## Références
+(1) Cori A, Ferguson NM, Fraser C, Cauchemez S. A New Framework and Software to Estimate Time-Varying Reproduction Numbers During Epidemics. Am J Epidemiol. 2013 Nov 1;178(9):1505–12.
+
+(2) Thompson RN, Stockwin JE, van Gaalen RD, Polonsky JA, Kamvar ZN, Demarsh PA, et al. Improved inference of time-varying reproduction numbers during infectious disease outbreaks. Epidemics. 2019 Dec 1;29:100356.
+
+ (3) Scire J, Nadeau S, Vaughan T, Brupbacher G, Fuchs S, Sommer J, et al. Reproductive number of the COVID-19 epidemic in Switzerland with a focus on the Cantons of Basel-Stadt and Basel-Landschaft. Swiss Med Wkly [Internet]. 2020 May 4 [cited 2020 Jun 3];150(1920). Available from: https://smw.ch/article/doi/smw.2020.20271(le lien est externe)
+ 
+(4) Goldstein E, Dushoff J, Ma J, Plotkin JB, Earn DJD, Lipsitch M. Reconstructing influenza incidence by deconvolution of daily mortality time series. Proc Natl Acad Sci. 2009 Dec 22;106(51):21825–9.
+
+(5) Gostic KM, McGough L, Baskerville E, Abbott S, Joshi K, Tedijanto C, et al. Practical considerations for measuring the effective reproductive number, Rt. medRxiv. 2020 Jun 21;2020.06.18.20134858.
 
 ## Équipe de modélisation
 Mathieu Maheu-Giroux
