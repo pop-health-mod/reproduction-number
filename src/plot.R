@@ -71,7 +71,7 @@ plot_ts_unadj <- function(inci_dat_long, vars, rss_name, days_exclude,
     p_inci <- ggplot(data = inci_dat_long %>% filter(variable == "Cas")) 
   }
   p_inci <-  p_inci + 
-    theme_minimal(base_family = "Raleway") +
+    theme_minimal() +
     geom_bar(aes(x = as.Date(dates), y = value, fill = imported, col = imported),
              stat = "identity", show.legend = showleg, size = 0.2, width = 1) +
     geom_rect(data = days_excl,
@@ -139,7 +139,7 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
     }
     
     p <- ggplot() +
-      theme_minimal(base_family = "Raleway") 
+      theme_minimal() 
     
     if (cv_d < 0.3) {
       p <- p + geom_ribbon(data = df_d, aes(x = dates, ymin = lci,
@@ -244,7 +244,7 @@ plot_r0_one <- function(df, rss_name, cv = TRUE, case_only = FALSE) {
     df <- na.omit(df)
     
     p <- ggplot() +
-      theme_minimal(base_family = "Raleway") +
+      theme_minimal() +
       geom_ribbon(data = df, aes(x = dates, ymin = lci, 
                                  ymax = uci, fill = variable), alpha = 0.4) +
       geom_line(data = df, aes(x = dates, y = mean, col = variable),
