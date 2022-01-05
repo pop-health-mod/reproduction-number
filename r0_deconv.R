@@ -7,16 +7,23 @@ library(dplyr)
 library(ggplot2)
 
 # Requires an R project to use here::here()
-source(here::here("src", "r0utils.R"))
-source(here::here("src", "plot.R"))
-source(here::here("src", "deconv.R"))
-source(here::here("src", "deconv_uncer.R"))
+# use on Windows
+source(here::here("src", "r0utils.R"), encoding = "UTF-8")
+source(here::here("src", "plot.R"), encoding = "UTF-8")
+source(here::here("src", "deconv.R"), encoding = "UTF-8")
+source(here::here("src", "deconv_uncer.R"), encoding = "UTF-8")
+
+# use on macOS
+# source(here::here("src", "r0utils.R"))
+# source(here::here("src", "plot.R"))
+# source(here::here("src", "deconv.R"))
+# source(here::here("src", "deconv_uncer.R"))
 
 # Declare the path to the repository hosting the data and where to output res.
-pathData <- "../reproduction-number/output/"
+pathData <- "./data/"
 pathFile <- here::here("output", "out")
 
-# ---- Parameter set-up----
+# ---- Parameter set-up ----
 # Provincial estimates
 rss <- data_frame(filename = c("qc_noise"), name = c("Québec"), RSS_code = c(NA))
 rss$cases_7days <- NA
@@ -29,7 +36,7 @@ step_rt <- FALSE
 # Number of days to exclude to remove reporting delays
 days_exclude <- data.frame(variable = c("Cas"),
                            number = c(2))
-date_data_cut <- as.Date("2020-09-13")
+date_data_cut <- as.Date("2022-01-03")
 
 # ---- Around parameters ----
 #  Delays and SD from normal approximation
